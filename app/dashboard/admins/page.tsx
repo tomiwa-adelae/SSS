@@ -63,9 +63,7 @@ const createAdminSchema = z.object({
     .regex(/[A-Z]/, "Must contain at least one uppercase letter")
     .regex(/[0-9]/, "Must contain at least one number")
     .regex(/[^A-Za-z0-9]/, "Must contain at least one special character"),
-  role: z.enum(["admin", "security", "analyst"], {
-    required_error: "Please select a role",
-  }),
+  role: z.enum(["admin", "security", "analyst"]),
 })
 
 type CreateAdminValues = z.infer<typeof createAdminSchema>
@@ -89,7 +87,7 @@ export default function AdminsPage() {
 
   const form = useForm<CreateAdminValues>({
     resolver: zodResolver(createAdminSchema),
-    defaultValues: { username: "", email: "", password: "", role: undefined },
+    defaultValues: { username: "", email: "", password: "" },
   })
 
   useEffect(() => {
