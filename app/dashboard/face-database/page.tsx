@@ -49,7 +49,7 @@ const addPersonSchema = z.object({
       (files) => files instanceof FileList && files.length > 0,
       "Photo is required"
     ),
-  is_wanted: z.boolean().default(false),
+  is_wanted: z.boolean(),
 })
 
 type AddPersonValues = z.infer<typeof addPersonSchema>
