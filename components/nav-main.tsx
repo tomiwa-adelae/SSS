@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,32 +10,31 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { Badge } from "./ui/badge";
-import { type LucideIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/store/useAuth";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+} from "@/components/ui/sidebar"
+import { Badge } from "./ui/badge"
+import { usePathname } from "next/navigation"
+import { useAuth } from "@/store/useAuth"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 export function NavMain({
   items,
 }: {
   items: {
-    label: string;
-    slug: string;
-    icon?: Icon | LucideIcon;
-    comingSoon?: boolean;
-    allowedRoles?: string[]; // Add this to the interface
-  }[];
+    label: string
+    slug: string
+    icon?: Icon | any
+    comingSoon?: boolean
+    allowedRoles?: string[] // Add this to the interface
+  }[]
 }) {
-  const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
-  const { user } = useAuth(); // Get user and admin status
+  const pathname = usePathname()
+  const { setOpenMobile } = useSidebar()
+  const { user } = useAuth() // Get user and admin status
 
   const handleLinkClick = () => {
-    setOpenMobile(false);
-  };
+    setOpenMobile(false)
+  }
 
   return (
     <SidebarGroup>
@@ -43,15 +42,15 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const isActive =
-              pathname === item.slug || pathname.startsWith(`${item.slug}/`);
-            const IconComponent = item.icon;
+              pathname === item.slug || pathname.startsWith(`${item.slug}/`)
+            const IconComponent = item.icon
 
             return (
               <SidebarMenuItem key={item.slug}>
                 {item.comingSoon ? (
                   <SidebarMenuButton
                     tooltip={item.label}
-                    className="opacity-50 cursor-not-allowed"
+                    className="cursor-not-allowed opacity-50"
                     disabled
                   >
                     {IconComponent && <IconComponent className="size-4" />}
@@ -76,10 +75,10 @@ export function NavMain({
                   </SidebarMenuButton>
                 )}
               </SidebarMenuItem>
-            );
+            )
           })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  );
+  )
 }

@@ -181,7 +181,7 @@ export default function FaceDatabasePage() {
                   <FormField
                     control={form.control}
                     name="photo"
-                    render={({ field: { onChange, ...fieldProps } }) => (
+                    render={({ field: { onChange, value: _value, ...fieldProps } }) => (
                       <FormItem>
                         <FormLabel>Photo</FormLabel>
                         <FormControl>
