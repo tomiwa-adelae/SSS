@@ -65,6 +65,7 @@ export default function FaceDatabasePage() {
   const [loading, setLoading] = useState(true)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<AddPersonValues>({
@@ -132,6 +133,38 @@ export default function FaceDatabasePage() {
       setSheetOpen(false)
     } catch {
       toast.error("Network error. Please try again.")
+    }
+  }
+
+  async function toggleWanted(person: Person) {
+    setTogglingIds((prev) => new Set(prev).add(person.id))
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/persons/${person.id}/toggle-wanted/`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Token ${token}` },
+        }
+      )
+      if (!res.ok) throw new Error()
+      setPersons((prev) =>
+        prev.map((p) =>
+          p.id === person.id ? { ...p, is_wanted: !p.is_wanted } : p
+        )
+      )
+      toast.success(
+        person.is_wanted
+          ? `${person.name} removed from wanted list.`
+          : `${person.name} marked as wanted.`
+      )
+    } catch {
+      toast.error("Failed to update status.")
+    } finally {
+      setTogglingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(person.id)
+        return next
+      })
     }
   }
 
@@ -297,20 +330,30 @@ export default function FaceDatabasePage() {
                   className="object-cover"
                 />
               </div>
-              <CardContent className="px-3 py-4">
+              <CardContent className="px-3 py-3">
                 <p className="truncate text-sm font-medium">{person.name}</p>
-                <div className="mt-1 flex items-center justify-between gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(person.created_at), "MMM d, yyyy")}
-                  </span>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {format(new Date(person.created_at), "MMM d, yyyy")}
+                </p>
+                <div className="mt-2 flex items-center gap-2">
                   {person.is_wanted && (
-                    <Badge
-                      variant="destructive"
-                      className="px-1.5 py-0 text-xs"
-                    >
+                    <Badge variant="destructive" className="px-1.5 py-0 text-xs">
                       Wanted
                     </Badge>
                   )}
+                  <Button
+                    size="sm"
+                    variant={person.is_wanted ? "outline" : "destructive"}
+                    className="ml-auto h-6 px-2 text-xs"
+                    disabled={togglingIds.has(person.id)}
+                    onClick={() => toggleWanted(person)}
+                  >
+                    {togglingIds.has(person.id)
+                      ? "…"
+                      : person.is_wanted
+                        ? "Unmark"
+                        : "Mark Wanted"}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
