@@ -327,10 +327,11 @@ export default function FaceDatabasePage() {
             <Card key={person.id} className="gap-0 overflow-hidden p-0">
               <div className="relative aspect-square bg-muted">
                 <Image
-                  src={`${env.NEXT_PUBLIC_BACKEND_API_URL}/${person.photo}`}
+                  src={`${env.NEXT_PUBLIC_BACKEND_API_URL}/media/${person.photo}`}
                   alt={person.name}
                   width={1000}
                   height={1000}
+                  unoptimized
                   className="object-cover"
                 />
               </div>

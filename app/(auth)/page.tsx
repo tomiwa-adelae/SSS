@@ -107,7 +107,7 @@ export default function LoginPage() {
               <IconCamera className="size-8 text-blue-600 dark:text-blue-400" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              Smart Surveillance System
+              SecureSurv
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Secure Monitoring Dashboard
@@ -177,12 +177,6 @@ export default function LoginPage() {
               >
                 {isSubmitting ? "Signing in…" : "Log In"}
               </Button>
-              <Link
-                href="/forgot-password"
-                className="w-full text-center text-sm text-blue-600 transition-colors hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Forgot Password?
-              </Link>
             </form>
           </Form>
         </div>

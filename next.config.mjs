@@ -12,10 +12,12 @@ const nextConfig = {
         hostname: "img.youtube.com",
         pathname: "/vi/**",
       },
+      // Fixed localhost entry
       {
         protocol: "http",
         hostname: "localhost",
-        pathname: "/vi/**",
+        port: "8000", // Required because your backend is on 8000
+        pathname: "/**", // Allows /faces/, /media/, etc.
       },
     ],
   },
