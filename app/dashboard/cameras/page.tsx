@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/form"
 import { PageHeader } from "@/components/PageHeader"
 import { useAuth } from "@/store/useAuth"
+import { env } from "@/lib/env"
 
 type Camera = {
   id: number
@@ -123,7 +124,7 @@ export default function CamerasPage() {
   async function fetchCameras() {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`,
+        `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`,
         { headers: { Authorization: `Token ${token}` } }
       )
       if (!res.ok) throw new Error()
@@ -139,7 +140,7 @@ export default function CamerasPage() {
   async function onSubmit(values: RegisterCameraValues) {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/register/`,
+        `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/register/`,
         {
           method: "POST",
           headers: {

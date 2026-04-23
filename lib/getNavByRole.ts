@@ -20,16 +20,32 @@ interface NavItem {
 const sssNavItems: NavItem[] = [
   { label: "Dashboard", slug: "/dashboard", icon: IconLayoutDashboard },
   { label: "Cameras", slug: "/dashboard/cameras", icon: IconCamera },
-  { label: "Face Database", slug: "/dashboard/face-database", icon: IconFaceId },
-  { label: "Detection Logs", slug: "/detection-logs", icon: IconListDetails },
-  { label: "Alerts", slug: "/alerts", icon: IconBell },
-  { label: "Analytics", slug: "/analytics", icon: IconChartBar },
-  { label: "Device Tracking", slug: "/device-tracking", icon: IconDevices },
-  { label: "Admin Management", slug: "/dashboard/admins", icon: IconUsersGroup },
+  {
+    label: "Face Database",
+    slug: "/dashboard/face-database",
+    icon: IconFaceId,
+  },
+  {
+    label: "Detection Logs",
+    slug: "/dashboard/detection-logs",
+    icon: IconListDetails,
+  },
+  { label: "Alerts", slug: "/dashboard/alerts", icon: IconBell },
+  { label: "Analytics", slug: "/dashboard/analytics", icon: IconChartBar },
+  {
+    label: "Device Tracking",
+    slug: "/dashboard/device-tracking",
+    icon: IconDevices,
+  },
+  {
+    label: "Admin Management",
+    slug: "/dashboard/admins",
+    icon: IconUsersGroup,
+  },
 ]
 
 export function getNavByRole(
-  user: { role?: string | null } | null | undefined,
+  user: { role?: string | null } | null | undefined
 ): NavItem[] {
   return sssNavItems
 }

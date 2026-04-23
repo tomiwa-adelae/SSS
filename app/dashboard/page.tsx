@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { IconCamera, IconMapPin, IconVideoOff, IconWifiOff } from "@tabler/icons-react"
+import {
+  IconCamera,
+  IconMapPin,
+  IconVideoOff,
+  IconWifiOff,
+} from "@tabler/icons-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/PageHeader"
 import { useAuth } from "@/store/useAuth"
+import { env } from "@/lib/env"
 
 type Camera = {
   id: number
@@ -25,8 +31,7 @@ function getYouTubeVideoId(url: string): string | null {
       return parsed.pathname.split("/live/")[1]?.split("?")[0] ?? null
     if (host === "youtube.com" && parsed.searchParams.has("v"))
       return parsed.searchParams.get("v")
-    if (host === "youtu.be")
-      return parsed.pathname.slice(1).split("?")[0]
+    if (host === "youtu.be") return parsed.pathname.slice(1).split("?")[0]
   } catch {}
   return null
 }
@@ -48,8 +53,8 @@ export default function DashboardPage() {
     async function fetchCameras() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`,
-          { headers: { Authorization: `Token ${token}` } },
+          `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`,
+          { headers: { Authorization: `Token ${token}` } }
         )
         if (!res.ok) throw new Error()
         const data = await res.json()
@@ -67,8 +72,14 @@ export default function DashboardPage() {
   const activeCameras = cameras.filter((c) => c.is_active).length
 
   const stats = [
-    { label: "Total Cameras", value: loadingCameras ? "—" : String(totalCameras) },
-    { label: "Active Cameras", value: loadingCameras ? "—" : String(activeCameras) },
+    {
+      label: "Total Cameras",
+      value: loadingCameras ? "—" : String(totalCameras),
+    },
+    {
+      label: "Active Cameras",
+      value: loadingCameras ? "—" : String(activeCameras),
+    },
     { label: "Detections Today", value: "156" },
     { label: "Active Alerts", value: "7", alert: true },
     { label: "Known Faces", value: "1,243" },
@@ -86,20 +97,31 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className={cn(stat.alert && "border-orange-500/40 dark:border-orange-500/30")}
+            className={cn(
+              stat.alert && "border-orange-500/40 dark:border-orange-500/30"
+            )}
           >
             <CardContent className="p-4">
-              {loadingCameras && (stat.label === "Total Cameras" || stat.label === "Active Cameras") ? (
+              {loadingCameras &&
+              (stat.label === "Total Cameras" ||
+                stat.label === "Active Cameras") ? (
                 <>
                   <Skeleton className="mb-2 h-8 w-12" />
                   <Skeleton className="h-3 w-24" />
                 </>
               ) : (
                 <>
-                  <p className={cn("text-3xl font-bold", stat.alert && "text-orange-500")}>
+                  <p
+                    className={cn(
+                      "text-3xl font-bold",
+                      stat.alert && "text-orange-500"
+                    )}
+                  >
                     {stat.value}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {stat.label}
+                  </p>
                 </>
               )}
             </CardContent>
@@ -117,14 +139,19 @@ export default function DashboardPage() {
           </div>
         ) : cameras.length === 0 ? (
           <div className="flex min-h-40 items-center justify-center rounded-lg border bg-muted/30">
-            <p className="text-sm text-muted-foreground">No cameras registered yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No cameras registered yet.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {cameras.slice(0, 4).map((camera) => {
               const embedUrl = getEmbedUrl(camera.stream_url)
               return (
-                <div key={camera.id} className="relative aspect-video overflow-hidden rounded-lg bg-black">
+                <div
+                  key={camera.id}
+                  className="relative aspect-video overflow-hidden rounded-lg bg-black"
+                >
                   {embedUrl ? (
                     <>
                       <iframe
@@ -160,12 +187,16 @@ export default function DashboardPage() {
                     {camera.is_active ? (
                       <div className="flex items-center gap-1 rounded-sm bg-red-600 px-1 py-0.5">
                         <span className="size-1 animate-pulse rounded-full bg-white" />
-                        <span className="text-[10px] font-semibold tracking-wider text-white">LIVE</span>
+                        <span className="text-[10px] font-semibold tracking-wider text-white">
+                          LIVE
+                        </span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 rounded-sm bg-black/60 px-1 py-0.5">
                         <IconWifiOff className="size-2.5 text-white/70" />
-                        <span className="text-[10px] font-semibold text-white/70">OFFLINE</span>
+                        <span className="text-[10px] font-semibold text-white/70">
+                          OFFLINE
+                        </span>
                       </div>
                     )}
                     <span className="rounded-sm bg-black/60 px-1 py-0.5 font-mono text-[10px] text-white/80">
@@ -175,10 +206,14 @@ export default function DashboardPage() {
 
                   {/* Bottom info */}
                   <div className="pointer-events-none absolute right-1.5 bottom-1.5 left-1.5">
-                    <p className="truncate text-xs font-semibold text-white drop-shadow">{camera.name}</p>
+                    <p className="truncate text-xs font-semibold text-white drop-shadow">
+                      {camera.name}
+                    </p>
                     <div className="flex items-center gap-0.5 text-white/70">
                       <IconMapPin className="size-2.5 shrink-0" />
-                      <p className="truncate text-[10px]">{camera.location_name}</p>
+                      <p className="truncate text-[10px]">
+                        {camera.location_name}
+                      </p>
                     </div>
                   </div>
                 </div>

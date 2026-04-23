@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/table"
 import { PageHeader } from "@/components/PageHeader"
 import { useAuth } from "@/store/useAuth"
+import { env } from "@/lib/env"
 
 type AdminUser = {
   id: number
@@ -97,7 +98,7 @@ export default function AdminsPage() {
   async function fetchAdmins() {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/users/`,
+        `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/users/`,
         { headers: { Authorization: `Token ${token}` } }
       )
       if (!res.ok) throw new Error()
@@ -113,7 +114,7 @@ export default function AdminsPage() {
   async function onSubmit(values: CreateAdminValues) {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/create-admin/`,
+        `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/create-admin/`,
         {
           method: "POST",
           headers: {

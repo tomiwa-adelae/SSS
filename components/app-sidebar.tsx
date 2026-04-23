@@ -25,10 +25,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   const navSecondary = React.useMemo(
     () => [
-      { title: "Settings", url: "/dashboard/settings", icon: IconSettings },
-      { title: "Get Help", url: "/help", icon: IconHelp, comingSoon: true },
+      // { title: "Settings", url: "/dashboard/settings", icon: IconSettings },
+      // { title: "Get Help", url: "/help", icon: IconHelp, comingSoon: true },
     ],
-    [],
+    []
   )
 
   return (
@@ -36,14 +36,20 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="hover:bg-transparent">
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              className="hover:bg-transparent"
+            >
               <a href="/dashboard">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shrink-0">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <IconCamera className="size-5" />
                 </div>
                 <div className="flex flex-col leading-tight">
                   <span className="text-sm font-bold">SSS</span>
-                  <span className="text-xs text-muted-foreground">Surveillance</span>
+                  <span className="text-xs text-muted-foreground">
+                    Surveillance
+                  </span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -56,9 +62,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
 
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
+      <SidebarFooter>{/* <NavUser /> */}</SidebarFooter>
     </Sidebar>
   )
 }

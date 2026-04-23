@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { useAuth } from "@/store/useAuth"
+import { env } from "@/lib/env"
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -49,7 +50,7 @@ export default function LoginPage() {
   async function onSubmit(values: LoginValues) {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/login/`,
+        `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/login/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
