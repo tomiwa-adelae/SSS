@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: "img.youtube.com",
         pathname: "/vi/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/vi/**",
+      },
     ],
   },
 }

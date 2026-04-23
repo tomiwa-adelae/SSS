@@ -42,7 +42,9 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const isActive =
-              pathname === item.slug || pathname.startsWith(`${item.slug}/`)
+              item.slug === "/dashboard"
+                ? pathname === item.slug
+                : pathname === item.slug || pathname.startsWith(`${item.slug}/`)
             const IconComponent = item.icon
 
             return (

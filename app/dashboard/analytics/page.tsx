@@ -53,9 +53,19 @@ type CameraActivity = {
 }
 type TopPerson = { person_id: number; name: string; detections: number }
 
-const trendConfig = { count: { label: "Detections", color: "hsl(var(--primary))" } }
-const hourlyConfig = { count: { label: "Detections", color: "hsl(var(--primary))" } }
+const trendConfig = {
+  count: {
+    label: "Detections",
+    color: "var(--primary)", // Simplified reference
+  },
+}
 
+const hourlyConfig = {
+  count: {
+    label: "Detections",
+    color: "var(--primary)",
+  },
+}
 export default function AnalyticsPage() {
   const { token } = useAuth()
 
@@ -199,15 +209,34 @@ export default function AnalyticsPage() {
             <Skeleton className="h-48 w-full" />
           ) : trends.length === 0 ? (
             <div className="flex h-48 items-center justify-center">
-              <p className="text-sm text-muted-foreground">No trend data available.</p>
+              <p className="text-sm text-muted-foreground">
+                No trend data available.
+              </p>
             </div>
           ) : (
             <ChartContainer config={trendConfig} className="h-48 w-full">
-              <AreaChart data={trends} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+              <AreaChart
+                data={trends}
+                margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+              >
                 <defs>
-                  <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <linearGradient
+                    id="trendGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -219,7 +248,12 @@ export default function AnalyticsPage() {
                   tickFormatter={(v) => format(new Date(v), "MMM d")}
                   interval="preserveStartEnd"
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={4} allowDecimals={false} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={4}
+                  allowDecimals={false}
+                />
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
@@ -230,7 +264,7 @@ export default function AnalyticsPage() {
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--primary)"
                   strokeWidth={2}
                   fill="url(#trendGradient)"
                   dot={false}
@@ -255,7 +289,9 @@ export default function AnalyticsPage() {
               <Skeleton className="h-48 w-full" />
             ) : hourly.length === 0 ? (
               <div className="flex h-48 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No hourly data available.</p>
+                <p className="text-sm text-muted-foreground">
+                  No hourly data available.
+                </p>
               </div>
             ) : (
               <ChartContainer config={hourlyConfig} className="h-48 w-full">
@@ -289,7 +325,7 @@ export default function AnalyticsPage() {
                   />
                   <Bar
                     dataKey="count"
-                    fill="hsl(var(--primary))"
+                    fill="var(--primary)"
                     radius={[3, 3, 0, 0]}
                   />
                 </BarChart>
@@ -391,7 +427,7 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-destructive"
+                          className="h-full rounded-full bg-primary"
                           style={{
                             width: `${(person.detections / maxPersonDetections) * 100}%`,
                           }}

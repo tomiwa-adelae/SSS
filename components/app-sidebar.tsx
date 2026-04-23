@@ -46,7 +46,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   <IconCamera className="size-5" />
                 </div>
                 <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-bold">SSS</span>
+                  <span className="text-sm font-bold">SecureSurv</span>
                   <span className="text-xs text-muted-foreground">
                     Surveillance
                   </span>

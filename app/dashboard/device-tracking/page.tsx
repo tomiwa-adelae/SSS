@@ -23,17 +23,14 @@ import { useAuth } from "@/store/useAuth"
 import { cn } from "@/lib/utils"
 import type { ActiveLocation } from "./_components/TrackingMap"
 
-const TrackingMap = dynamic(
-  () => import("./_components/TrackingMap"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full items-center justify-center bg-muted/30">
-        <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
-      </div>
-    ),
-  },
-)
+const TrackingMap = dynamic(() => import("./_components/TrackingMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center bg-muted/30">
+      <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+    </div>
+  ),
+})
 
 const LOCATION_INTERVAL = 2000
 const POLL_INTERVAL = 2000
@@ -46,17 +43,33 @@ export default function DeviceTrackingPage() {
   const [locations, setLocations] = useState<ActiveLocation[]>([])
   const [loadingLocations, setLoadingLocations] = useState(true)
 
-  const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasInitializedToggle = useRef(false)
+
+  const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  )
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchLocations = useCallback(async () => {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/tracking/active-locations/`,
-        { headers: { Authorization: `Token ${token}` } },
+        { headers: { Authorization: `Token ${token}` } }
       )
       if (!res.ok) throw new Error()
       const data = await res.json()
+
+      const remoteTrackingEnabled = data.tracking_enabled
+      setLocations(data.locations || data)
+
+      if (!hasInitializedToggle.current) {
+        setTrackingEnabled(remoteTrackingEnabled)
+        if (remoteTrackingEnabled) {
+          startTracking()
+        }
+        hasInitializedToggle.current = true
+      }
+
       setLocations(data)
     } catch {
       // silent — we don't toast on every poll failure
@@ -82,7 +95,7 @@ export default function DeviceTrackingPage() {
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
               }),
-            },
+            }
           )
         } catch {
           // silent — keep trying on next interval
@@ -92,7 +105,7 @@ export default function DeviceTrackingPage() {
         toast.error("Unable to get your location. Check browser permissions.")
         stopTracking()
       },
-      { enableHighAccuracy: true, timeout: 5000 },
+      { enableHighAccuracy: true, timeout: 5000 }
     )
   }, [token])
 
@@ -117,7 +130,7 @@ export default function DeviceTrackingPage() {
         {
           method: "PATCH",
           headers: { Authorization: `Token ${token}` },
-        },
+        }
       )
       if (!res.ok) throw new Error()
       const data = await res.json()
@@ -145,6 +158,16 @@ export default function DeviceTrackingPage() {
       stopTracking()
     }
   }, [fetchLocations])
+
+  useEffect(() => {
+    fetchLocations()
+    pollIntervalRef.current = setInterval(fetchLocations, POLL_INTERVAL)
+
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
+      stopTracking()
+    }
+  }, [fetchLocations, stopTracking])
 
   const activeCount = locations.length
 
@@ -245,7 +268,9 @@ export default function DeviceTrackingPage() {
               </div>
             ) : (
               locations.map((loc) => {
-                const isSelf = user?.id ? loc.user_id === Number(user.id) : false
+                const isSelf = user?.id
+                  ? loc.user_id === Number(user.id)
+                  : false
                 return (
                   <Card
                     key={loc.user_id}
@@ -255,7 +280,7 @@ export default function DeviceTrackingPage() {
                       <div
                         className={cn(
                           "flex size-8 shrink-0 items-center justify-center rounded-full",
-                          isSelf ? "bg-blue-500" : "bg-orange-500",
+                          isSelf ? "bg-blue-500" : "bg-orange-500"
                         )}
                       >
                         <IconUser className="size-4 text-white" />
@@ -275,7 +300,9 @@ export default function DeviceTrackingPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground">{loc.role}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {loc.role}
+                        </p>
                         <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
                           {loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}
                         </p>

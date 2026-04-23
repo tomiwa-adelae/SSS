@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/form"
 import { PageHeader } from "@/components/PageHeader"
 import { useAuth } from "@/store/useAuth"
+import { env } from "@/lib/env"
 
 type Person = {
   id: number
@@ -55,7 +56,7 @@ const addPersonSchema = z.object({
 type AddPersonValues = z.infer<typeof addPersonSchema>
 
 function getPhotoUrl(photo: string) {
-  if (photo.startsWith("http")) return photo
+  // if (photo.startsWith("http")) return photo
   return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/media/${photo}`
 }
 
@@ -214,7 +215,9 @@ export default function FaceDatabasePage() {
                   <FormField
                     control={form.control}
                     name="photo"
-                    render={({ field: { onChange, value: _value, ...fieldProps } }) => (
+                    render={({
+                      field: { onChange, value: _value, ...fieldProps },
+                    }) => (
                       <FormItem>
                         <FormLabel>Photo</FormLabel>
                         <FormControl>
@@ -324,9 +327,10 @@ export default function FaceDatabasePage() {
             <Card key={person.id} className="gap-0 overflow-hidden p-0">
               <div className="relative aspect-square bg-muted">
                 <Image
-                  src={getPhotoUrl(person.photo)}
+                  src={`${env.NEXT_PUBLIC_BACKEND_API_URL}/${person.photo}`}
                   alt={person.name}
-                  fill
+                  width={1000}
+                  height={1000}
                   className="object-cover"
                 />
               </div>
@@ -337,7 +341,10 @@ export default function FaceDatabasePage() {
                 </p>
                 <div className="mt-2 flex items-center gap-2">
                   {person.is_wanted && (
-                    <Badge variant="destructive" className="px-1.5 py-0 text-xs">
+                    <Badge
+                      variant="destructive"
+                      className="px-1.5 py-0 text-xs"
+                    >
                       Wanted
                     </Badge>
                   )}

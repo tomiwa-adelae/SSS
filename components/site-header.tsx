@@ -4,18 +4,43 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useAuth } from "@/store/useAuth"
 import { ThemeToggle } from "./ThemeToggle"
+import { usePathname } from "next/navigation"
+
+const routeTitles: Record<string, string> = {
+  "/dashboard": "Overview",
+  "/dashboard/analytics": "Performance Metrics",
+  "/dashboard/tracking": "Live Device Map",
+}
 
 const roleTitles: Record<string, string> = {
-  ADMIN: "Smart Surveillance System",
-  ADMINISTRATOR: "Admin Panel",
-  BRAND: "Brand Management Center",
-  PROFESSIONAL: "Professional Dashboard",
-  ARTISAN: "Artisan Dashboard",
+  ADMIN: "SecureSurv",
+  ADMINISTRATOR: "SecureSurv",
+  BRAND: "SecureSurv",
+  PROFESSIONAL: "SecureSurv",
+  ARTISAN: "SecureSurv",
 }
 
 export function SiteHeader() {
   const { user } = useAuth()
-  const title = roleTitles[user?.role || ""] || "Dashboard"
+  const pathname = usePathname() // [!code ++]
+
+  const getPageTitle = () => {
+    if (routeTitles[pathname]) return routeTitles[pathname]
+
+    const segments = pathname.split("/").filter(Boolean)
+    if (segments.length === 0) return "SecureSurv"
+
+    const lastSegment = segments[segments.length - 1]
+
+    // Convert "device-tracking" to "Device Tracking"
+    return lastSegment
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
+  const title = getPageTitle()
+
+  // const title = roleTitles[user?.role || ""] || "Dashboard"
 
   return (
     <header className="sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b backdrop-blur-md transition-[width,height] ease-linear">
