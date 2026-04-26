@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import dynamic from "next/dynamic"
 import { toast } from "sonner"
 import {
   IconCamera,
@@ -14,6 +15,19 @@ import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/PageHeader"
 import { useAuth } from "@/store/useAuth"
 import { env } from "@/lib/env"
+import type { ActiveLocation } from "@/app/dashboard/device-tracking/_components/TrackingMap"
+
+const TrackingMap = dynamic(
+  () => import("@/app/dashboard/device-tracking/_components/TrackingMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center bg-muted/30">
+        <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+      </div>
+    ),
+  }
+)
 
 type Camera = {
   id: number
@@ -44,10 +58,12 @@ function getEmbedUrl(url: string): string | null {
 }
 
 export default function DashboardPage() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const [cameras, setCameras] = useState<Camera[]>([])
   const [loadingCameras, setLoadingCameras] = useState(true)
   const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set())
+  const [locations, setLocations] = useState<ActiveLocation[]>([])
+  const [loadingLocations, setLoadingLocations] = useState(true)
 
   useEffect(() => {
     async function fetchCameras() {
@@ -65,7 +81,25 @@ export default function DashboardPage() {
         setLoadingCameras(false)
       }
     }
+
+    async function fetchLocations() {
+      try {
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/tracking/active-locations/`,
+          { headers: { Authorization: `Token ${token}` } }
+        )
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        setLocations(data.locations ?? data)
+      } catch {
+        // silent — map just shows empty state
+      } finally {
+        setLoadingLocations(false)
+      }
+    }
+
     fetchCameras()
+    fetchLocations()
   }, [token])
 
   const totalCameras = cameras.length
@@ -224,11 +258,18 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-base font-medium">Camera Locations</h2>
-        <div className="flex min-h-72 items-center justify-center rounded-lg border bg-muted/30">
-          <p className="text-sm text-muted-foreground">
-            Map integration area — Leaflet / Mapbox
-          </p>
+        <h2 className="text-base font-medium">Active Personnel Map</h2>
+        <div className="relative min-h-72 overflow-hidden rounded-xl border bg-muted/30">
+          {loadingLocations ? (
+            <div className="flex h-72 items-center justify-center">
+              <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+            </div>
+          ) : (
+            <TrackingMap
+              locations={locations}
+              currentUserId={user?.id ? Number(user.id) : undefined}
+            />
+          )}
         </div>
       </div>
     </div>
