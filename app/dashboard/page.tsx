@@ -71,6 +71,16 @@ function getEmbedUrl(url: string): string | null {
   return null
 }
 
+type Summary = {
+  total_cameras: number
+  active_cameras: number
+  total_wanted_persons: number
+  total_persons: number
+  total_detections: number
+  total_alerts: number
+  unread_alerts: number
+}
+
 export default function DashboardPage() {
   const { token, user } = useAuth()
   const [cameras, setCameras] = useState<Camera[]>([])
@@ -78,17 +88,17 @@ export default function DashboardPage() {
   const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set())
   const [locations, setLocations] = useState<ActiveLocation[]>([])
   const [loadingLocations, setLoadingLocations] = useState(true)
+  const [summary, setSummary] = useState<Summary | null>(null)
+  const [loadingSummary, setLoadingSummary] = useState(true)
 
   useEffect(() => {
+    const headers = { Authorization: `Token ${token}` }
+
     async function fetchCameras() {
       try {
-        const res = await fetch(
-          `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`,
-          { headers: { Authorization: `Token ${token}` } }
-        )
+        const res = await fetch(`${env.NEXT_PUBLIC_BACKEND_API_URL}/api/cameras/`, { headers })
         if (!res.ok) throw new Error()
-        const data = await res.json()
-        setCameras(data)
+        setCameras(await res.json())
       } catch {
         toast.error("Failed to load camera data.")
       } finally {
@@ -96,12 +106,21 @@ export default function DashboardPage() {
       }
     }
 
+    async function fetchSummary() {
+      try {
+        const res = await fetch(`${env.NEXT_PUBLIC_BACKEND_API_URL}/api/analytics/summary/`, { headers })
+        if (!res.ok) throw new Error()
+        setSummary(await res.json())
+      } catch {
+        // silent — cards will show "—"
+      } finally {
+        setLoadingSummary(false)
+      }
+    }
+
     async function fetchLocations() {
       try {
-        const res = await fetch(
-          `${env.NEXT_PUBLIC_BACKEND_API_URL}/api/tracking/active-locations/`,
-          { headers: { Authorization: `Token ${token}` } }
-        )
+        const res = await fetch(`${env.NEXT_PUBLIC_BACKEND_API_URL}/api/tracking/active-locations/`, { headers })
         if (!res.ok) throw new Error()
         const data = await res.json()
         setLocations(data.locations ?? data)
@@ -113,25 +132,32 @@ export default function DashboardPage() {
     }
 
     fetchCameras()
+    fetchSummary()
     fetchLocations()
   }, [token])
-
-  const totalCameras = cameras.length
-  const activeCameras = cameras.filter((c) => c.is_active).length
 
   const stats = [
     {
       label: "Total Cameras",
-      value: loadingCameras ? "—" : String(totalCameras),
+      value: loadingSummary ? "—" : String(summary?.total_cameras ?? 0),
+      loading: loadingSummary,
     },
     {
       label: "Active Cameras",
-      value: loadingCameras ? "—" : String(activeCameras),
+      value: loadingSummary ? "—" : String(summary?.active_cameras ?? 0),
+      loading: loadingSummary,
     },
-    { label: "Detections Today", value: "156" },
-    { label: "Active Alerts", value: "7", alert: true },
-    { label: "Known Faces", value: "1,243" },
-    { label: "Unknown Faces", value: "23" },
+    {
+      label: "Total Detections",
+      value: loadingSummary ? "—" : String(summary?.total_detections ?? 0),
+      loading: loadingSummary,
+    },
+    {
+      label: "Unread Alerts",
+      value: loadingSummary ? "—" : String(summary?.unread_alerts ?? 0),
+      alert: !loadingSummary && (summary?.unread_alerts ?? 0) > 0,
+      loading: loadingSummary,
+    },
   ]
 
   return (
@@ -141,35 +167,24 @@ export default function DashboardPage() {
         description="Overview of surveillance system activity"
       />
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className={cn(
-              stat.alert && "border-orange-500/40 dark:border-orange-500/30"
-            )}
+            className={cn(stat.alert && "border-orange-500/40 dark:border-orange-500/30")}
           >
             <CardContent className="p-4">
-              {loadingCameras &&
-              (stat.label === "Total Cameras" ||
-                stat.label === "Active Cameras") ? (
+              {stat.loading ? (
                 <>
                   <Skeleton className="mb-2 h-8 w-12" />
                   <Skeleton className="h-3 w-24" />
                 </>
               ) : (
                 <>
-                  <p
-                    className={cn(
-                      "text-3xl font-bold",
-                      stat.alert && "text-orange-500"
-                    )}
-                  >
+                  <p className={cn("text-3xl font-bold", stat.alert && "text-orange-500")}>
                     {stat.value}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {stat.label}
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
                 </>
               )}
             </CardContent>
