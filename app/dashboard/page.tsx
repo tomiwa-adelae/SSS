@@ -29,10 +29,24 @@ const TrackingMap = dynamic(
   }
 )
 
+const CameraMap = dynamic(
+  () => import("@/app/dashboard/_components/CameraMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center bg-muted/30">
+        <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+      </div>
+    ),
+  }
+)
+
 type Camera = {
   id: number
   name: string
   location_name: string
+  latitude: number
+  longitude: number
   is_active: boolean
   stream_url: string
 }
@@ -257,19 +271,38 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="space-y-3">
-        <h2 className="text-base font-medium">Active Personnel Map</h2>
-        <div className="relative min-h-72 overflow-hidden rounded-xl border bg-muted/30">
-          {loadingLocations ? (
-            <div className="flex h-72 items-center justify-center">
-              <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
-            </div>
-          ) : (
-            <TrackingMap
-              locations={locations}
-              currentUserId={user?.id ? Number(user.id) : undefined}
-            />
-          )}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="text-base font-medium">Camera Locations</h2>
+          <div className="relative h-72 overflow-hidden rounded-xl border bg-muted/30">
+            {loadingCameras ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+              </div>
+            ) : cameras.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center gap-1">
+                <p className="text-sm text-muted-foreground">No cameras registered yet.</p>
+              </div>
+            ) : (
+              <CameraMap cameras={cameras} />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h2 className="text-base font-medium">Active Personnel</h2>
+          <div className="relative h-72 overflow-hidden rounded-xl border bg-muted/30">
+            {loadingLocations ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="size-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+              </div>
+            ) : (
+              <TrackingMap
+                locations={locations}
+                currentUserId={user?.id ? Number(user.id) : undefined}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

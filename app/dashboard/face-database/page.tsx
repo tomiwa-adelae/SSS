@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   Sheet,
   SheetContent,
@@ -67,6 +68,7 @@ export default function FaceDatabasePage() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<AddPersonValues>({
@@ -324,15 +326,18 @@ export default function FaceDatabasePage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {persons.map((person) => (
-            <Card key={person.id} className="gap-0 overflow-hidden p-0">
+            <Card
+              key={person.id}
+              className="cursor-pointer gap-0 overflow-hidden p-0 transition-shadow hover:shadow-md"
+              onClick={() => setSelectedPerson(person)}
+            >
               <div className="relative aspect-square bg-muted">
                 <Image
-                  src={`${env.NEXT_PUBLIC_BACKEND_API_URL}/media/${person.photo}`}
+                  src={getPhotoUrl(person.photo)}
                   alt={person.name}
-                  width={1000}
-                  height={1000}
+                  fill
                   unoptimized
-                  className="object-cover"
+                  className="object-cover blur-md"
                 />
               </div>
               <CardContent className="px-3 py-3">
@@ -354,7 +359,10 @@ export default function FaceDatabasePage() {
                     variant={person.is_wanted ? "outline" : "destructive"}
                     className="ml-auto h-6 px-2 text-xs"
                     disabled={togglingIds.has(person.id)}
-                    onClick={() => toggleWanted(person)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleWanted(person)
+                    }}
                   >
                     {togglingIds.has(person.id)
                       ? "…"
@@ -368,6 +376,47 @@ export default function FaceDatabasePage() {
           ))}
         </div>
       )}
+
+      <Dialog
+        open={!!selectedPerson}
+        onOpenChange={(open) => !open && setSelectedPerson(null)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogTitle className="sr-only">Person Photo</DialogTitle>
+          {selectedPerson && (
+            <div className="space-y-4">
+              <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                <Image
+                  src={getPhotoUrl(selectedPerson.photo)}
+                  alt={selectedPerson.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-base font-semibold">
+                    {selectedPerson.name}
+                  </p>
+                  {selectedPerson.is_wanted && (
+                    <Badge
+                      variant="destructive"
+                      className="px-1.5 py-0 text-xs"
+                    >
+                      Wanted
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Added{" "}
+                  {format(new Date(selectedPerson.created_at), "MMM d, yyyy")}
+                </p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
